@@ -46,6 +46,7 @@ void loop() {
     if (strcmp(command, expectedCommand) == 0) {
       resendLastData();
     }
+		// read로 쌓인 버퍼 초기화
   }
 }
 
