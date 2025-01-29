@@ -46,8 +46,11 @@ void loop() {
     if (strcmp(command, expectedCommand) == 0) {
       resendLastData();
     }
-		// read로 쌓인 버퍼 초기화
   }
+	// read로 쌓인 버퍼 초기화
+	while (HC12.available()) {
+		HC12.read();
+	}
 }
 
 // 센서 데이터를 읽고 전송
