@@ -29,22 +29,34 @@ void setup() {
 }
 
 void loop() {
-  // HC-12로부터 명령 수신 대기
-  if (HC12.available() == 4) {
-    char command[5];
-    HC12.readBytes(command, 4);
-    command[4] = '\0';
+  if (HC12.available() > 0) {  // 데이터 수신 시작 감지
+    unsigned long startTime = millis(); // 시작 시간 저장
 
-    // 데이터 요구 명령어 처리 (e.g., S1MD for SLAVE_ID = 1)
-    char expectedCommand[5];
-    snprintf(expectedCommand, sizeof(expectedCommand), "S%dMD", SLAVE_ID);
-    if (strcmp(command, expectedCommand) == 0) {
-      sendSensorData();
+    // 최대 10ms 동안 기다리면서 4바이트 도착 여부 확인
+    while ((millis() - startTime) < 10) {
+      if (HC12.available() == 4) {  // 4바이트가 도착하면 처리
+        char command[5];
+        HC12.readBytes(command, 4);
+        command[4] = '\0';
+
+        char expectedCommand[5];
+        snprintf(expectedCommand, sizeof(expectedCommand), "S%dMD", SLAVE_ID);
+        if (strcmp(command, expectedCommand) == 0) {
+          sendSensorData();
+        }
+
+        snprintf(expectedCommand, sizeof(expectedCommand), "S%dMU", SLAVE_ID);
+        if (strcmp(command, expectedCommand) == 0) {
+          resendLastData();
+        }
+
+        return; // 정상 처리 후 루프 종료
+      }
     }
-    // 이전 데이터 재전송 명령어 처리 (e.g., S1MU for SLAVE_ID = 1)
-    snprintf(expectedCommand, sizeof(expectedCommand), "S%dMU", SLAVE_ID);
-    if (strcmp(command, expectedCommand) == 0) {
-      resendLastData();
+
+    // 10ms가 지나도 4바이트가 안 모이면 버퍼 초기화
+    while (HC12.available()) {
+      HC12.read();
     }
   }
 }
