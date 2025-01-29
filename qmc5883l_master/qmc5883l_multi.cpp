@@ -44,15 +44,19 @@ bool QMC5883LMulti::requestSensorData(uint8_t slaveId, char* buffer) {
   snprintf(command, 5, "S%dMD", slaveId);
 
   HC12.write(command);
-
-  unsigned long startTime = millis();
-  while ((millis() - startTime) < 200) { // Wait up to 200ms for response
-    if (HC12.available() >= 10) {
-      HC12.readBytes(buffer, 10);
-      return validateReceivedData(buffer, slaveId);
-    }
-  }
-
+	
+	if (HC12.available()) {
+  		unsigned long startTime = millis();
+  		while ((millis() - startTime) < 200) { // Wait up to 200ms for response
+    		if (HC12.available() >= 10) {
+      		HC12.readBytes(buffer, 10);
+      		return validateReceivedData(buffer, slaveId);
+    		}
+  		}
+		while (HC12.avaliable()) {
+			HC12.read();		
+		}
+	}
   return false; // Timed out
 }
 
@@ -61,15 +65,19 @@ bool QMC5883LMulti::requestResendData(uint8_t slaveId, char* buffer) {
   snprintf(command, 5, "S%dMU", slaveId);
 
   HC12.write(command);
-
-  unsigned long startTime = millis();
-  while ((millis() - startTime) < 200) { // Wait up to 200ms for response
-    if (HC12.available() >= 10) {
-      HC12.readBytes(buffer, 10);
-      return validateReceivedData(buffer, slaveId);
-    }
-  }
-
+	
+	if (HC12.available()) {
+  		unsigned long startTime = millis();
+  		while ((millis() - startTime) < 200) { // Wait up to 200ms for response
+    		if (HC12.available() >= 10) {
+      		HC12.readBytes(buffer, 10);
+      		return validateReceivedData(buffer, slaveId);
+    		}
+  		}
+		while (HC12.avaliable()) {
+			HC12.read();		
+		}
+	}
   return false; // Timed out
 }
 
