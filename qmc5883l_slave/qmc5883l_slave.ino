@@ -35,20 +35,16 @@ void loop() {
     // 최대 10ms 동안 기다리면서 4바이트 도착 여부 확인
     while ((millis() - startTime) < 10) {
       if (HC12.available() == 4) {  // 4바이트가 도착하면 처리
-        char command[5];
+        char command[4];
         HC12.readBytes(command, 4);
-        command[4] = '\0';
 
-        char expectedCommand[5];
-        snprintf(expectedCommand, sizeof(expectedCommand), "S%dMD", SLAVE_ID);
-        if (strcmp(command, expectedCommand) == 0) {
-          sendSensorData();
-        }
-
-        snprintf(expectedCommand, sizeof(expectedCommand), "S%dMU", SLAVE_ID);
-        if (strcmp(command, expectedCommand) == 0) {
-          resendLastData();
-        }
+        if (command[0] == 'S' && command[1] == ('0' + SLAVE_ID)) {
+      			if (command[2] == 'M' && command[3] =='D') {    
+						sendSensorData();
+    				}	else if (command[2] == 'M' && command[3] =='U') {
+						resendLastData();
+					}   
+				}
 
         return; // 정상 처리 후 루프 종료
       }
