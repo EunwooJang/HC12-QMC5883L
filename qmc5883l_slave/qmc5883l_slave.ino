@@ -3,6 +3,12 @@
 // HC-12 핀 설정: Serial 포트를 HC-12에 직접 연결
 #define HC12 Serial
 
+#define SLAVE_ID 1  
+#define SENSOR_TYPE 'M'  
+
+char command1[5];
+char command2[5];
+
 // QMC5883L 센서 핀 설정 및 객체 생성
 QMC5883LEdit compass;
 
@@ -17,6 +23,10 @@ char lastSentData[10]; // 4바이트 헤더 + 6바이트 센서 데이터
 
 void setup() {
   HC12.begin(9600); // HC-12 시리얼 통신 시작
+
+	// 미리 명령어 문자열 생성
+  snprintf(command1, sizeof(command1), "S%d%cD", SLAVE_ID, SENSOR_TYPE);
+  snprintf(command2, sizeof(command2), "S%d%cU", SLAVE_ID, SENSOR_TYPE);
 
   // QMC5883L 초기화
   compass.init();
@@ -38,17 +48,15 @@ void loop() {
         char command[4];
         HC12.readBytes(command, 4);
 
-        if (command[0] == 'S' && command[1] == ('0' + SLAVE_ID)) {
-      			if (command[2] == 'M' && command[3] =='D') {    
-						sendSensorData();
-    				}	else if (command[2] == 'M' && command[3] =='U') {
-						resendLastData();
-					}   
-				}
-
-        return; // 정상 처리 후 루프 종료
-      }
-    }
+        if (memcmp(receivedCommand, command1, 4) == 0) {
+            sendSensorData();
+        } else if (memcmp(receivedCommand, command2, 4) == 0) {
+            resendLastData();
+        }
+				
+				return;
+    	}
+		}
 
     // 10ms가 지나도 4바이트가 안 모이면 버퍼 초기화
     while (HC12.available()) {
