@@ -44,7 +44,7 @@ void loop() {
 
     // 최대 10ms 동안 기다리면서 4바이트 도착 여부 확인
     while ((millis() - startTime) < 10) {
-      if (HC12.available() == 4) {  // 4바이트가 도착하면 처리
+      if (HC12.available() >= 4) {  // 4바이트가 도착하면 처리
         char command[4];
         HC12.readBytes(command, 4);
 
@@ -55,7 +55,7 @@ void loop() {
         }
 				
 				return;
-    	}
+    		}
 		}
 
     // 10ms가 지나도 4바이트가 안 모이면 버퍼 초기화
