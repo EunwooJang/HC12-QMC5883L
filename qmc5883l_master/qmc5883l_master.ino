@@ -11,10 +11,8 @@ SoftwareSerial hc12(D2, D1); // HC-12 모듈 연결 핀 (TX, RX)
 QMC5883LMulti compassMulti(MAGNETIC_SLAVE_AMOUNT);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   hc12.begin(9600); // HC-12 통신 시작
-
-  compassMulti.begin(); // QMC5883LMulti 초기화
 }
 
 void loop() {
