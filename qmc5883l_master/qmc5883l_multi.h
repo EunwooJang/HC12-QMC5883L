@@ -9,8 +9,6 @@ class QMC5883LMulti {
 public:
   QMC5883LMulti(uint8_t slaveAmount);
 
-  // 초기화 함수
-  void begin();
 
   // 모든 슬레이브의 센서 데이터를 수집
   char* getAllSensorData();
