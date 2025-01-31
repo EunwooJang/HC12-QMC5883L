@@ -2,6 +2,7 @@
 #define QMC5883L_MULTI_H
 
 #include <Arduino.h>
+#include <SoftwareSerial.h>
 
 // QMC5883LMulti 클래스 정의
 class QMC5883LMulti {
@@ -27,5 +28,7 @@ private:
   // 수신된 데이터 검증
   bool validateReceivedData(const char* data, uint8_t slaveId);
 };
+
+extern SoftwareSerial hc12; // 메인에서 선언된 hc12 사용
 
 #endif
