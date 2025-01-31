@@ -1,18 +1,18 @@
 #include "qmc5883l_multi.h"
 #include <SoftwareSerial.h>
 
-// HC-12 핀 설정 (RX, TX)
-SoftwareSerial HC12(10, 11); // HC-12 모듈 연결 핀 (TX, RX)
-
 // 슬레이브 개수 설정
-#define SLAVE_AMOUNT 5
+#define MAGNETIC_SLAVE_AMOUNT 5
+
+// HC-12 핀 설정 (RX, TX)
+SoftwareSerial hc12(D2, D1); // HC-12 모듈 연결 핀 (TX, RX)
 
 // QMC5883LMulti 객체 생성
-QMC5883LMulti compassMulti(SLAVE_AMOUNT);
+QMC5883LMulti compassMulti(MAGNETIC_SLAVE_AMOUNT);
 
 void setup() {
   Serial.begin(9600);
-  HC12.begin(9600); // HC-12 통신 시작
+  hc12.begin(9600); // HC-12 통신 시작
 
   compassMulti.begin(); // QMC5883LMulti 초기화
 }
