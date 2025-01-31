@@ -1,19 +1,13 @@
 #include "qmc5883l_edit.h"
 
-// HC-12 핀 설정: Serial 포트를 HC-12에 직접 연결
-#define HC12 Serial
-
 #define SLAVE_ID 1  
 #define SENSOR_TYPE 'M'  
-
-char command1[5];
-char command2[5];
 
 // QMC5883L 센서 핀 설정 및 객체 생성
 QMC5883LEdit compass;
 
-// 슬레이브 ID 설정
-const uint8_t SLAVE_ID = 1; // 이 값은 반드시 변경 가능해야 함
+char command1[5];
+char command2[5];
 
 // 고정된 헤더를 저장할 배열
 char fixedHeaderData[5]; // 동적으로 설정되는 헤더
@@ -22,31 +16,32 @@ char fixedHeaderData[5]; // 동적으로 설정되는 헤더
 char lastSentData[10]; // 4바이트 헤더 + 6바이트 센서 데이터
 
 void setup() {
-  HC12.begin(9600); // HC-12 시리얼 통신 시작
-
+	Serial1.begin(9600); // HC-12 시리얼 통신 시작
+	Serial.begin(9600);
+	
 	// 미리 명령어 문자열 생성
-  snprintf(command1, sizeof(command1), "S%d%cD", SLAVE_ID, SENSOR_TYPE);
-  snprintf(command2, sizeof(command2), "S%d%cU", SLAVE_ID, SENSOR_TYPE);
+  	snprintf(command1, sizeof(command1), "S%d%cD", SLAVE_ID, SENSOR_TYPE);
+  	snprintf(command2, sizeof(command2), "S%d%cU", SLAVE_ID, SENSOR_TYPE);
 
-  // QMC5883L 초기화
-  compass.init();
+  	// QMC5883L 초기화
+  	compass.init();
 
-  // 동적으로 헤더 초기화
-  snprintf(fixedHeaderData, sizeof(fixedHeaderData), "D%dMD", SLAVE_ID);
+  	// 동적으로 헤더 초기화
+  	snprintf(fixedHeaderData, sizeof(fixedHeaderData), "D%dMD", SLAVE_ID);
 
-  // 이전 전송 데이터 초기화
-  memset(lastSentData, 0, sizeof(lastSentData));
+  	// 이전 전송 데이터 초기화
+  	memset(lastSentData, 0, sizeof(lastSentData));
 }
 
 void loop() {
-  if (HC12.available() > 0) {  // 데이터 수신 시작 감지
+  if (Serial1.available() > 0) {  // 데이터 수신 시작 감지
     unsigned long startTime = millis(); // 시작 시간 저장
 
     // 최대 10ms 동안 기다리면서 4바이트 도착 여부 확인
     while ((millis() - startTime) < 10) {
-      if (HC12.available() >= 4) {  // 4바이트가 도착하면 처리
+      if (Serial1.available() >= 4) {  // 4바이트가 도착하면 처리
         char command[4];
-        HC12.readBytes(command, 4);
+        Serial1.readBytes(command, 4);
 
         if (memcmp(receivedCommand, command1, 4) == 0) {
             sendSensorData();
@@ -54,13 +49,13 @@ void loop() {
             resendLastData();
         }
 				
-				return;
-    		}
-		}
+	return;
+    }
+}
 
     // 10ms가 지나도 4바이트가 안 모이면 버퍼 초기화
-    while (HC12.available()) {
-      HC12.read();
+    while (Serial1.available()) {
+      Serial1.read();
     }
   }
 }
@@ -78,10 +73,10 @@ void sendSensorData() {
   memcpy(&lastSentData[4], rawData, 6);     // 센서 데이터 저장
 
   // HC-12로 데이터 전송
-  HC12.write(lastSentData, sizeof(lastSentData));
+  Serial1.write(lastSentData, sizeof(lastSentData));
 }
 
 // 이전 데이터를 재전송
 void resendLastData() {
-  HC12.write(lastSentData, sizeof(lastSentData));
+  Serial1.write(lastSentData, sizeof(lastSentData));
 }
